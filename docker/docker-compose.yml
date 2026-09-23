@@ -1,0 +1,102 @@
+# Autonomous Customer Support & Action Engine
+# Designed and Developed by NIKHIL CHARY SRIRAMOJU
+# GitHub: https://github.com/Nikhil-creat | LinkedIn: https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a
+
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: support-engine-api:latest
+    container_name: support-engine-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DSN: postgresql+asyncpg://support:support@postgres:5432/support_engine
+      POSTGRES_CHECKPOINT_DSN: postgresql://support:support@postgres:5432/support_engine
+      REDIS_URL: redis://redis:6379/0
+      OTEL_EXPORTER_ENDPOINT: http://otel-collector:4317
+      MCP_SERVER_ENDPOINTS: '["http://mcp-tool-server:8801/mcp"]'
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-changeme}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - cnn-weights:/app/models
+    networks:
+      - support-engine-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: support-engine-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD: support
+      POSTGRES_DB: support_engine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support -d support_engine"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - support-engine-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: support-engine-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - support-engine-net
+
+  mcp-tool-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mcp-stub
+    image: support-engine-mcp-stub:latest
+    container_name: support-engine-mcp-stub
+    restart: unless-stopped
+    ports:
+      - "8801:8801"
+    networks:
+      - support-engine-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.108.0
+    container_name: support-engine-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+    networks:
+      - support-engine-net
+
+networks:
+  support-engine-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  cnn-weights:

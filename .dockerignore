@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.git/
+.env
+*.egg-info/
+.pytest_cache/
+eval/eval_report.json
