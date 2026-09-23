@@ -5,7 +5,8 @@ hybrid RAG, CNN-based visual defect inspection, Model Context Protocol (MCP)
 tool integration, semantic caching, human-in-the-loop governance, and full
 observability — containerized for one-command deployment.
 
-> ### Designed and Developed by **NIKHIL CHARY SRIRAMOJU**
+> ### Designed and Developed by
+> # **NIKHIL CHARY SRIRAMOJU**
 > GitHub: [github.com/Nikhil-creat](https://github.com/Nikhil-creat)
 > LinkedIn: [in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a](https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a)
 > Email: sriramojunikhil66@gmail.com
