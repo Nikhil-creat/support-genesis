@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>support-genesis — Autonomous Customer Support &amp; Action Engine</title>
+<meta name="description" content="An enterprise-grade agentic AI platform: multi-agent orchestration, hybrid RAG, CNN visual inspection, MCP tools, and human-in-the-loop governance.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%230D0F12%22/><circle cx=%2250%22 cy=%2250%22 r=%2222%22 fill=%22none%22 stroke=%22%23E8A33D%22 stroke-width=%228%22/><circle cx=%2250%22 cy=%2250%22 r=%226%22 fill=%22%23E8A33D%22/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D0F12;
+    --panel:#15181D;
+    --panel-2:#1B1F26;
+    --border:#262B33;
+    --text:#E7E5E0;
+    --text-dim:#9AA0AB;
+    --text-faint:#5B6270;
+    --accent:#E8A33D;
+    --accent-dim:#8A6423;
+    --ok:#4FB286;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky; top:0; z-index:10;
+    background:rgba(13,15,18,0.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 0;
+  }
+  .wordmark{
+    display:flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; color:var(--text);
+  }
+  .wordmark .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);}
+  .navlinks{display:flex; gap:24px; font-size:14px; color:var(--text-dim);}
+  .navlinks a{color:var(--text-dim);}
+  .navlinks a:hover{color:var(--text);}
+  @media (max-width:560px){ .navlinks{display:none;} }
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 40px; border-bottom:1px solid var(--border);}
+  .kicker{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent);
+    margin:0 0 18px;
+  }
+  h1{
+    font-size:clamp(34px,6vw,54px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 22px;
+    font-weight:600;
+    max-width:14ch;
+  }
+  .lede{
+    font-size:18px; color:var(--text-dim); max-width:58ch; margin:0 0 32px;
+  }
+  .hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:40px;}
+  .btn{
+    font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500;
+    padding:12px 20px; border-radius:6px; border:1px solid var(--border);
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--accent); color:#1a1300; border-color:var(--accent);}
+  .btn-primary:hover{background:#f0ac4c; text-decoration:none;}
+  .btn-ghost{color:var(--text);}
+  .btn-ghost:hover{border-color:var(--text-dim); text-decoration:none;}
+
+  .credit{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    border-radius:8px;
+    padding:20px 24px;
+  }
+  .credit .who{font-size:14px; color:var(--text-dim); margin:0 0 4px;}
+  .credit .name{font-size:17px; font-weight:600; margin:0 0 14px;}
+  .credit .links{display:flex; flex-wrap:wrap; gap:6px 18px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-dim);}
+  .credit .links span{color:var(--text-faint);}
+
+  /* ---------- sections ---------- */
+  section{padding:56px 0; border-bottom:1px solid var(--border);}
+  .section-label{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-faint);
+    margin:0 0 8px;
+  }
+  h2{font-size:clamp(24px,4vw,32px); margin:0 0 32px; font-weight:600; max-width:20ch;}
+
+  /* capability table */
+  .cap-table{width:100%; border-collapse:collapse; font-size:15px;}
+  .cap-table tr{border-top:1px solid var(--border);}
+  .cap-table tr:first-child{border-top:none;}
+  .cap-table td{padding:16px 12px 16px 0; vertical-align:top;}
+  .cap-table td:first-child{color:var(--text); max-width:340px;}
+  .cap-table td:last-child{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent);
+    white-space:nowrap; text-align:right; padding-right:0;
+  }
+
+  /* architecture diagram */
+  .diagram{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:28px 20px; overflow-x:auto;
+  }
+  .flow{display:flex; flex-direction:column; gap:0; min-width:280px;}
+  .node{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; font-family:'IBM Plex Mono',monospace; font-size:13.5px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .node .step-num{color:var(--accent); font-size:11px;}
+  .node .step-name{color:var(--text);}
+  .node .step-desc{color:var(--text-dim); font-size:12px; font-family:'Space Grotesk',sans-serif;}
+  .node.branch{border-color:var(--accent-dim);}
+  .arrow{
+    align-self:center; color:var(--text-faint); font-size:13px; padding:6px 0;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .branch-row{display:flex; gap:16px; align-items:stretch;}
+  .branch-row .node{flex:1;}
+  .side-note{
+    margin-top:24px; padding-top:20px; border-top:1px dashed var(--border);
+    font-size:13.5px; color:var(--text-dim);
+  }
+  .side-note .tag{color:var(--ok); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+
+  /* stack chips */
+  .stack-group{margin-bottom:24px;}
+  .stack-group .stack-label{font-size:13px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin:0 0 10px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-dim);
+    border:1px solid var(--border); border-radius:5px; padding:6px 10px; background:var(--panel);
+  }
+
+  /* get it */
+  .code-block{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:18px 20px; font-family:'IBM Plex Mono',monospace; font-size:13.5px;
+    color:var(--ok); overflow-x:auto; white-space:pre;
+  }
+  .code-block .cmt{color:var(--text-faint);}
+
+  footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px)); text-align:left;}
+  footer .links{display:flex; flex-wrap:wrap; gap:6px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-dim); margin-bottom:10px;}
+  footer .fine{font-size:12.5px; color:var(--text-faint);}
+
+  @media (min-width:640px){
+    .flow{display:grid; grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="wordmark"><span class="dot"></span>support-genesis</div>
+      <div class="navlinks">
+        <a href="#architecture">Architecture</a>
+        <a href="#stack">Stack</a>
+        <a href="#get-it">Get it</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="border-top:none; padding-top:56px;">
+    <p class="kicker mono">agentic ai · multi-agent orchestration</p>
+    <h1>Autonomous Customer Support &amp; Action Engine</h1>
+    <p class="lede">
+      A production-shaped support platform where agents don't just answer —
+      they route, retrieve, act, verify their own work, and escalate to a
+      human when the stakes are high enough to deserve one.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/Nikhil-creat/support-genesis">View on GitHub</a>
+      <a class="btn btn-ghost" href="#architecture">See how it works</a>
+    </div>
+
+    <div class="credit">
+      <p class="who mono">designed and developed by</p>
+      <p class="name">Nikhil Chary Sriramoju</p>
+      <div class="links">
+        <span>GitHub</span> <a href="https://github.com/Nikhil-creat">github.com/Nikhil-creat</a>
+        <span>LinkedIn</span> <a href="https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a">in.linkedin.com/in/nikhil-chary-sriramoju</a>
+        <span>Email</span> <a href="mailto:sriramojunikhil66@gmail.com">sriramojunikhil66@gmail.com</a>
+        <span>Instagram</span> <a href="https://www.instagram.com/nikhil__sriramoju">@nikhil__sriramoju</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <p class="section-label mono">why this isn't just a chatbot wrapper</p>
+    <h2>Every layer earns the word "agentic"</h2>
+    <table class="cap-table">
+      <tr><td>A2A multi-agent delegation via Agent Cards</td><td>RouterSupervisorNode</td></tr>
+      <tr><td>Background agent that self-escalates SLA breaches with no user prompt</td><td>ProactiveSLAAgent</td></tr>
+      <tr><td>Self-correction — captures tool tracebacks, repairs its own arguments, retries</td><td>ActionExecutorNode</td></tr>
+      <tr><td>Self-verification — a critic agent checks the executor's work before replying</td><td>VerificationCriticNode</td></tr>
+      <tr><td>CNN classifies uploaded damage photos, feeds the verdict back into planning</td><td>app/vision/</td></tr>
+      <tr><td>Hybrid retrieval — dense embeddings + BM25, cross-encoder re-ranked</td><td>knowledge_base.py</td></tr>
+      <tr><td>Dynamic tool discovery over JSON-RPC, HTTP and stdio transports</td><td>mcp/client.py</td></tr>
+      <tr><td>Semantic cache skips the whole graph on near-duplicate questions</td><td>semantic_cache.py</td></tr>
+      <tr><td>High-value actions pause for human approval, resume from a checkpoint</td><td>interrupt_before</td></tr>
+      <tr><td>PII scrubbed — regex and NER — before every LLM call and every log line</td><td>pii_sanitizer.py</td></tr>
+    </table>
+  </section>
+
+  <section class="wrap" id="architecture">
+    <p class="section-label mono">request lifecycle</p>
+    <h2>One message, five agents, one verified answer</h2>
+    <div class="diagram">
+      <div class="flow">
+        <div class="node">
+          <span class="step-num">01</span>
+          <span class="step-name">RouterSupervisorNode</span>
+          <span class="step-desc">reads Agent Cards, delegates by intent</span>
+        </div>
+        <div class="arrow">↓ image attached?</div>
+        <div class="branch-row">
+          <div class="node branch">
+            <span class="step-num">02a</span>
+            <span class="step-name">VisualInspectionNode</span>
+            <span class="step-desc">CNN classifies the damage photo</span>
+          </div>
+          <div class="node branch">
+            <span class="step-num">02b</span>
+            <span class="step-name">PolicyRAGNode</span>
+            <span class="step-desc">hybrid retrieval over support policy</span>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="node">
+          <span class="step-num">03</span>
+          <span class="step-name">ActionExecutorNode</span>
+          <span class="step-desc">calls MCP tools · retries and self-corrects on failure</span>
+        </div>
+        <div class="arrow">↓ high-value or destructive?</div>
+        <div class="node branch">
+          <span class="step-num">—</span>
+          <span class="step-name">Human approval queue</span>
+          <span class="step-desc">graph pauses, resumes from Postgres checkpoint on decision</span>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="node">
+          <span class="step-num">04</span>
+          <span class="step-name">VerificationCriticNode</span>
+          <span class="step-desc">checks the executor's own output before it reaches the user</span>
+        </div>
+      </div>
+      <div class="side-note">
+        <span class="tag">running in parallel —</span>
+        ProactiveSLAAgent polls the approval queue on its own schedule and
+        escalates anything left pending too long, independent of any chat turn.
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="stack">
+    <p class="section-label mono">built with</p>
+    <h2>Tech stack</h2>
+
+    <div class="stack-group">
+      <p class="stack-label mono">orchestration &amp; protocols</p>
+      <div class="chips">
+        <span class="chip">LangGraph</span>
+        <span class="chip">AsyncPostgresSaver</span>
+        <span class="chip">Model Context Protocol</span>
+        <span class="chip">A2A Agent Cards</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <p class="stack-label mono">retrieval &amp; vision</p>
+      <div class="chips">
+        <span class="chip">BM25</span>
+        <span class="chip">Dense embeddings</span>
+        <span class="chip">Cross-encoder reranking</span>
+        <span class="chip">PyTorch CNN</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <p class="stack-label mono">backend &amp; data</p>
+      <div class="chips">
+        <span class="chip">FastAPI</span>
+        <span class="chip">SQLAlchemy 2.0 async</span>
+        <span class="chip">Postgres</span>
+        <span class="chip">Redis</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <p class="stack-label mono">observability &amp; ops</p>
+      <div class="chips">
+        <span class="chip">OpenTelemetry</span>
+        <span class="chip">LangSmith</span>
+        <span class="chip">DeepEval</span>
+        <span class="chip">Docker Compose</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="get-it">
+    <p class="section-label mono">run it yourself</p>
+    <h2>Up and running in one command</h2>
+    <div class="code-block mono"><span class="cmt"># clone, then:</span>
+cd docker
+OPENAI_API_KEY=sk-... docker compose up --build
+
+<span class="cmt"># brings up the API, Postgres, Redis,</span>
+<span class="cmt"># a mock MCP tool server, and an OTEL collector</span>
+curl http://localhost:8000/healthz</span></div>
+    <p style="margin-top:20px; color:var(--text-dim); font-size:15px;">
+      Full setup, local (non-Docker) instructions, and production hardening
+      notes are in the <a href="https://github.com/Nikhil-creat/support-genesis#readme">repository README</a>.
+    </p>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="links">
+    <a href="https://github.com/Nikhil-creat">GitHub</a>
+    <a href="https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a">LinkedIn</a>
+    <a href="mailto:sriramojunikhil66@gmail.com">Email</a>
+    <a href="https://www.instagram.com/nikhil__sriramoju">Instagram</a>
+  </div>
+  <p class="fine">support-genesis — designed and developed by Nikhil Chary Sriramoju.</p>
+</footer>
+
+</body>
+</html>
